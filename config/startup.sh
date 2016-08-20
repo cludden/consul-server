@@ -1,11 +1,15 @@
 #!/bin/bash
 
 # define DynamoDB key query
-KEY='{"id":{"S":"consul-server"},"user":{"S":"USERNAME"}}'
+KEY='{"id":{"S":"CONFIGID"},"user":{"S":"USERNAME"}}'
 KEY="${KEY/USERNAME/$USERNAME}"
+KEY="${KEY/CONFIGID/$CONFIGID}"
+
+# copy ssl certificates
+aws s3 cp s3://wccportal-init/consul/aws-us-west-2.cer /opt/consul/ssl/aws-us-west-2.cer --region us-west-2
+aws s3 cp s3://wccportal-init/consul/aws-us-west-2.key /opt/consul/ssl/aws-us-west-2.key --region us-west-2
+aws s3 cp s3://wccportal-init/consul/ca.cer /opt/consul/ssl/ca.cer --region us-west-2
 
 # get configuration from DynamoDB
 aws dynamodb get-item --region $REGION --table-name "$TABLE_NAME" --key="$KEY" | \
-    jq '.Item.config.M as $config | {acl_master_token: $config.acl_master_token.S, encrypt: $config.encrypt.S, advertise_addr: $config.advertise_addr.S, datacenter: $config.datacenter.S}' > /config/secrets.json
-
-consul agent -client=0.0.0.0 -server -data-dir=/data -config-dir=/config $CONSUL_PARAMS && rm /config/secrets.json
+    jq '.Item' | jq -f /config/unmarshal_dynamodb.jq | jq '.config' > /config/config.json

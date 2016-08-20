@@ -1,5 +1,5 @@
 # consul-server
-docker container based on the official [consul]() image that pulls secret configuration from DynamoDB.
+docker container based on the official [consul]() image that allows for dynamic configuration by pulling all configuration from DynamoDB.
 
 ## Installing
 1. modify defaults in `/config/config.json`
