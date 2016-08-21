@@ -1,15 +1,10 @@
 #!/bin/bash
 
-# define DynamoDB key query
-KEY='{"id":{"S":"CONFIGID"},"user":{"S":"USERNAME"}}'
-KEY="${KEY/USERNAME/$USERNAME}"
-KEY="${KEY/CONFIGID/$CONFIGID}"
-
 # copy ssl certificates
-aws s3 cp s3://wccportal-init/consul/aws-us-west-2.cer /opt/consul/ssl/aws-us-west-2.cer --region us-west-2
-aws s3 cp s3://wccportal-init/consul/aws-us-west-2.key /opt/consul/ssl/aws-us-west-2.key --region us-west-2
-aws s3 cp s3://wccportal-init/consul/ca.cer /opt/consul/ssl/ca.cer --region us-west-2
+aws s3 cp "s3://${S3_BUCKET}/${CERT_S3_PATH}" "${CERT_DEST_PATH}" --region "$S3_REGION"
+aws s3 cp "s3://${S3_BUCKET}/${KEY_S3_PATH}" "${KEY_DEST_PATH}" --region "$S3_REGION"
+aws s3 cp "s3://${S3_BUCKET}/${CA_S3_PATH}" "${CA_DEST_PATH}" --region "$S3_REGION"
 
 # get configuration from DynamoDB
-aws dynamodb get-item --region $REGION --table-name "$TABLE_NAME" --key="$KEY" | \
+aws dynamodb get-item --region "$DYNAMO_REGION" --table-name "$DYNAMO_TABLE" --key="$DYNAMO_KEY" | \
     jq '.Item' | jq -f /config/unmarshal_dynamodb.jq | jq '.config' > /config/config.json
