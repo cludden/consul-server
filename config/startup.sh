@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # copy ssl certificates
-if [ -z "$CERT_S3_PATH" ]; then
+if [ -n "$CERT_S3_PATH" ]; then
     aws s3 cp "s3://${S3_BUCKET}/${CERT_S3_PATH}" "${CERT_DEST_PATH}" --region "$S3_REGION"
 fi
-if [ -z "$KEY_S3_PATH" ]; then
+if [ -n "$KEY_S3_PATH" ]; then
     aws s3 cp "s3://${S3_BUCKET}/${KEY_S3_PATH}" "${KEY_DEST_PATH}" --region "$S3_REGION"
 fi
-if [ -z "$CA_S3_PATH" ]; then
+if [ -n "$CA_S3_PATH" ]; then
     aws s3 cp "s3://${S3_BUCKET}/${CA_S3_PATH}" "${CA_DEST_PATH}" --region "$S3_REGION"
 fi
 
